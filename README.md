@@ -3,7 +3,7 @@
 This repository contains all my assignments for the STEMLink course.
 
 ## Week 1 Code Challenge
-[Click here to view Week 1 Assignment]()
+[Click here to view Week 1 Assignment](Week 1 Code Challenge/fed-core-javascript-session-1)
 
 ## Week 2 Code Challenge
 [Click here to view Week 2 Assignment]()
