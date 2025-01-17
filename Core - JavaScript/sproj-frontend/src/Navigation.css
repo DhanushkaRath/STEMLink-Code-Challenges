@@ -1,0 +1,45 @@
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    margin-left: 4rem;
+    margin-right: 4rem;
+  }
+  
+
+  .navgroup {
+    display: flex;
+    column-gap: 4rem;
+  }
+  
+  .navbar-brand {
+    font-weight: 600;
+    font-size: 1.875rem;
+  }
+  
+  .nav-links,
+  .cart-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .cart-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+  }
+  
+  .cart-count{
+    font-size: 1.125rem;
+  }
+  
+  .cart-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
