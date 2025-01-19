@@ -11,5 +11,5 @@ This repository contains all my assignments for the STEMLink course.
 ## Week 3 Code Challenge
 [Click here to view Week 3 Assignment](https://github.com/DhanushkaRath/STEMLink-Assignments/tree/main/Week%203%20Code%20Challenge/sproj-frontend)
 
-## Week 4 Code Challenge
+## Week 4 Code Challenge 
 [Click here to view Week 4 Assignment](https://github.com/DhanushkaRath/STEMLink-Assignments/tree/main/Week%204%20Code%20Challenge/sproj-frontend)
