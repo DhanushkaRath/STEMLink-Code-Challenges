@@ -1,4 +1,4 @@
-# STEMLink Assignments
+# STEMLink Code Challenges
 
 This repository contains all my assignments for the STEMLink course.
 
