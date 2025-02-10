@@ -5,7 +5,7 @@ Product: The items being ordered.
 Order: A collection of products purchased by a user.
 OrderItem: connects an order to the products, storing the quantity and price of each product in the order.
 ShippingAddress: Stores the delivery details for an order.
-Payment: Tracks the payment status of an order.
+Payment: Tracks the payment status of an order. 
 
 
 Relationships
