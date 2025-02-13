@@ -20,4 +20,7 @@ This repository contains all my code challenges for the STEMLink course.
 ## Week 9 Code Challenge 
 [Click here to view Week 9 Code Challenge](https://github.com/DhanushkaRath/STEMLink-Code-Challenges/tree/main/Week%209%20Code%20Challenge/newproj) 
 
+## Week 11 Code Challenge 
+[Click here to view Week 9 Code Challenge](https://github.com/DhanushkaRath/STEMLink-Code-Challenges/tree/main/Week%2011%20Code%20Challenge) 
+
 
