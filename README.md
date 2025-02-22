@@ -26,5 +26,10 @@ This repository contains all my code challenges for the STEMLink course.
 ## Week 12 Code Challenge 
 [Click here to view Week 12 Code Challenge](https://github.com/DhanushkaRath/STEMLink-Code-Challenges/tree/main/Week%2012%20Code%20Challenge) 
 
+## Week 13 Code Challenge 
+[Click here to view Week 13 Code Challenge]() 
+
+https://github.com/DhanushkaRath/STEMLink-Code-Challenges/tree/main/Week%2013%20Code%20Challenge
+
 
 
