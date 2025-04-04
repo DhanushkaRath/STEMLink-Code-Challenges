@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        #messages {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Test Page</h1>
+    <div id="status" class="disconnected">Disconnected</div>
+    <div id="messages"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+        let ws;
+
+        function connect() {
+            ws = new WebSocket('ws://localhost:8000/ws/orders');
+
+            ws.onopen = () => {
+                statusDiv.textContent = 'Connected to WebSocket server';
+                statusDiv.className = 'connected';
+                appendMessage('Connected to WebSocket server');
+            };
+
+            ws.onclose = () => {
+                statusDiv.textContent = 'Disconnected from WebSocket server';
+                statusDiv.className = 'disconnected';
+                appendMessage('Disconnected from WebSocket server');
+            };
+
+            ws.onerror = (error) => {
+                appendMessage('Error: ' + error.message);
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                appendMessage('Received: ' + JSON.stringify(data, null, 2));
+            };
+        }
+
+        function appendMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Connect when the page loads
+        connect();
+    </script>
+</body>
+</html> 
