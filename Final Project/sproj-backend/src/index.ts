@@ -13,17 +13,14 @@ import http from 'http';
 import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node';
 
 const app = express();
-
-// Create HTTP server
 const server = http.createServer(app);
 
-// Create WebSocket server
+// WebSocket server setup
 const wss = new WebSocketServer({ server, path: '/ws/orders' });
 
-// WebSocket connection handling
 wss.on('connection', (ws) => {
   console.log('New WebSocket connection');
-  
+
   ws.on('message', (message) => {
     console.log('Received:', message);
   });
@@ -35,17 +32,26 @@ wss.on('connection', (ws) => {
 
 // Middleware
 app.use(express.json());
+
+// CORS: Allow specific production URL + any localhost:<port>
 app.use(cors({
-  origin: [
-    'https://fed-storefront-frontend-manupa.netlify.app',
-    'http://localhost:5173',
-  ],
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'https://fed-storefront-frontend-dhanushka.netlify.app'
+    ];
+
+    if (!origin || allowedOrigins.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 
-// Initialize Clerk
+// Clerk middleware
 app.use(clerkMiddleware());
 
 // Routes
@@ -54,10 +60,10 @@ app.use("/api/categories", categoryRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/payments", paymentsRouter);
 
-// Error handling
+// Error handler
 app.use(globalErrorHandlingMiddleware);
 
-// Database connection
+// Connect to DB
 connectDB();
 
 // Start server
