@@ -1,7 +1,8 @@
 {
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "start": "ts-node src/index.ts"
+    "start": "node dist/index.js",
+    "build": "tsc"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.24.1",

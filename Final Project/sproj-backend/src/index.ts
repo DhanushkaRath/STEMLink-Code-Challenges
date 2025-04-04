@@ -33,13 +33,13 @@ wss.on('connection', (ws) => {
 // Middleware
 app.use(express.json());
 
-// CORS: Allow specific production URL + any localhost:<port>
+// ✅ Updated CORS config
+const allowedOrigins = [
+  'https://fed-storefront-frontend-dhanushka.netlify.app'
+];
+
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = [
-      'https://fed-storefront-frontend-dhanushka.netlify.app'
-    ];
-
     if (!origin || allowedOrigins.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin)) {
       callback(null, true);
     } else {
@@ -50,6 +50,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
+// ✅ Allow pre-flight CORS requests
+app.options('*', cors());
 
 // Clerk middleware
 app.use(clerkMiddleware());

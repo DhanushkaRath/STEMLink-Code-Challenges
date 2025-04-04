@@ -1,13 +1,13 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = "http://localhost:8000/api/";
 
 // Define a service using a base URL and expected endpoints
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:8000/api/",
+    baseUrl: BACKEND_URL,
     prepareHeaders: async (headers, { getState }) => {
       // Get token from auth if needed
       const token = localStorage.getItem('token');
