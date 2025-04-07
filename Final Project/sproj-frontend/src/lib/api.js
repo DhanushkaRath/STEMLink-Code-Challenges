@@ -1,18 +1,24 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const BACKEND_URL = "http://localhost:8000/api/";
+const isDev = process.env.NODE_ENV === "development";
+const baseUrl = isDev
+  ? "http://localhost:8000/api/"
+  : "https://fed-storefront-backend-dhanushka.onrender.com/api/";
 
 // Define a service using a base URL and expected endpoints
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: BACKEND_URL,
+    baseUrl,
     prepareHeaders: async (headers, { getState }) => {
-      // Get token from auth if needed
-      const token = localStorage.getItem('token');
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
+      try {
+        const token = await window.Clerk?.session?.getToken();
+        if (token) {
+          headers.set('Authorization', `Bearer ${token}`);
+        }
+      } catch (error) {
+        console.error('Error fetching Clerk token:', error);
       }
       return headers;
     },
@@ -29,26 +35,37 @@ export const api = createApi({
       query: () => "categories",
     }),
     createProduct: builder.mutation({
-      query: ({ data, token }) => ({
-        url: "products",
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: data,
-      }),
+      query: ({ data }) => {
+        const token = window.Clerk?.session?.getToken();
+        return {
+          url: "products",
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: data,
+        };
+      },
     }),
     createOrder: builder.mutation({
-      query: (orderData) => ({
-        url: "orders",
-        method: "POST",
-        body: orderData,
-      }),
+      query: (orderData) => {
+        const token = window.Clerk?.session?.getToken();
+        return {
+          url: "orders",
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: orderData,
+        };
+      },
     }),
     getOrder: builder.query({
-      query: ({ orderId, token }) => ({
+      query: ({ orderId }) => ({
         url: `orders/${orderId}`,
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: {
+          Authorization: `Bearer ${window.Clerk?.session?.getToken()}`,
+        },
       }),
     }),
   }),
