@@ -13,14 +13,17 @@ import http from 'http';
 import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node';
 
 const app = express();
+
+// Create HTTP server
 const server = http.createServer(app);
 
-// WebSocket server setup
+// Create WebSocket server
 const wss = new WebSocketServer({ server, path: '/ws/orders' });
 
+// WebSocket connection handling
 wss.on('connection', (ws) => {
   console.log('New WebSocket connection');
-
+  
   ws.on('message', (message) => {
     console.log('Received:', message);
   });
@@ -32,29 +35,19 @@ wss.on('connection', (ws) => {
 
 // Middleware
 app.use(express.json());
-
-// ✅ Updated CORS config
-const allowedOrigins = [
-  'https://fed-storefront-frontend-dhanushka.netlify.app'
-];
-
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: [
+    'https://fed-storefront-frontend-dhanushka.netlify.app',
+    'http://localhost:5173',
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  credentials: true,
+  maxAge: 86400
 }));
 
-// ✅ Allow pre-flight CORS requests
-app.options('*', cors());
-
-// Clerk middleware
+// Initialize Clerk
 app.use(clerkMiddleware());
 
 // Routes
@@ -63,10 +56,10 @@ app.use("/api/categories", categoryRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/payments", paymentsRouter);
 
-// Error handler
+// Error handling
 app.use(globalErrorHandlingMiddleware);
 
-// Connect to DB
+// Database connection
 connectDB();
 
 // Start server

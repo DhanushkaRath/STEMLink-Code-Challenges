@@ -12,17 +12,19 @@ export const getProducts = async (
 ) => {
   try {
     const { categoryId } = req.query;
-    let data;
     if (!categoryId) {
-      data = await Product.find();
-    } else {
-      data = await Product.find({ categoryId });
-    }
+      const data = await Product.find();
       res.status(200).json(data);
-    } catch (error) {
-      next(error);
+      return;
     }
-  };
+
+    const data = await Product.find({ categoryId });
+    res.status(200).json(data);
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const createProduct = async (
   req: Request,
@@ -35,8 +37,8 @@ export const createProduct = async (
       throw new ValidationError("Invalid product data");
     }
     await Product.create(result.data);
-    res.status(201).json({ message: "Product created successfully" });
-    
+    res.status(201).send();
+    return;
   } catch (error) {
     next(error);
   }
@@ -53,8 +55,8 @@ export const getProduct = async (
     if (!product) {
       throw new NotFoundError("Product not found");
     }
-    res.status(200).json(product);
-    
+    res.status(200).json(product).send();
+    return;
   } catch (error) {
     next(error);
   }
@@ -73,7 +75,7 @@ export const deleteProduct = async (
       throw new NotFoundError("Product not found");
     }
     res.status(204).send();
-    
+    return;
   } catch (error) {
     next(error);
   }
@@ -86,15 +88,14 @@ export const updateProduct = async (
 ) => {
   try {
     const id = req.params.id;
-    const product = await Product.findByIdAndUpdate(id, req.body, {
-      new: true, 
-    });
+    const product = await Product.findByIdAndUpdate(id, req.body);
 
     if (!product) {
       throw new NotFoundError("Product not found");
     }
 
-    res.status(200).json({ message: "Product updated successfully", product });
+    res.status(200).send(product);
+    return;
   } catch (error) {
     next(error);
   }
