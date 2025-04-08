@@ -6,11 +6,18 @@ const baseUrl = isDev
   ? "http://localhost:8000/api/"
   : "https://fed-storefront-backend-dhanushka.onrender.com/api/";
 
+
+  // Add this check before making API calls
+if (!window.Clerk?.session) {
+  // Handle the case when Clerk is not initialized
+  console.warn('Clerk session not initialized');
+}
 // Define a service using a base URL and expected endpoints
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl,
+    credentials: 'include',
     prepareHeaders: async (headers, { getState }) => {
       try {
         const token = await window.Clerk?.session?.getToken();
@@ -35,38 +42,24 @@ export const api = createApi({
       query: () => "categories",
     }),
     createProduct: builder.mutation({
-      query: ({ data }) => {
-        const token = window.Clerk?.session?.getToken();
-        return {
-          url: "products",
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: data,
-        };
-      },
-    }),
-    createOrder: builder.mutation({
-      query: (orderData) => {
-        const token = window.Clerk?.session?.getToken();
-        return {
-          url: "orders",
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: orderData,
-        };
-      },
-    }),
-    getOrder: builder.query({
-      query: ({ orderId }) => ({
-        url: `orders/${orderId}`,
-        headers: {
-          Authorization: `Bearer ${window.Clerk?.session?.getToken()}`,
-        },
+      query: ({ data }) => ({
+        url: "products",
+        method: "POST",
+        body: data,
       }),
+    }),
+    
+    createOrder: builder.mutation({
+      query: (orderData) => ({
+        url: "orders",
+        method: "POST",
+        body: orderData,
+      }),
+    }),
+
+    getOrder: builder.query({
+      query: ({ orderId }) => `orders/${orderId}`,
+    
     }),
   }),
 });
