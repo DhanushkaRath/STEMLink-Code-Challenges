@@ -1,15 +1,8 @@
-import { useNavigate } from "react-router-dom";
-
 function Button(props){
-    const navigate = useNavigate();
 
     const handleClick = (e) => {
-        if (props.to) {
-            navigate(props.to);
-        }
-        if (props.onClick) {
-            props.onClick(e);
-        }
+        console.log(e);
+        console.log("clicked");
     };
 
     return( 

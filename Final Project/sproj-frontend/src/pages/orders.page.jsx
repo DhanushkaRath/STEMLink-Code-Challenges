@@ -21,12 +21,11 @@ function OrdersPage() {
     try {
       setIsLoading(true);
       const token = await getToken();
-      console.log("Token:", token); // Debugging
       if (!token) {
         throw new Error("Authentication token not available");
       }
 
-      const response = await fetch(`http://localhost:8000/api/orders/user/${userId}`, {
+      const response = await fetch(`http://localhost:8000/api/orders/user_orders/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -34,14 +33,17 @@ function OrdersPage() {
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch orders. Status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `Failed to fetch orders. Status: ${response.status}`
+        );
       }
       
       const data = await response.json();
       setOrders(data);
     } catch (error) {
       console.error('Error fetching orders:', error);
-      toast.error("Failed to load orders");
+      toast.error(error.message || "Failed to load orders");
     } finally {
       setIsLoading(false);
     }
