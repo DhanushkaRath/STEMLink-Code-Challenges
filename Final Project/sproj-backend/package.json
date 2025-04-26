@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "start": "ts-node src/index.ts",
-    "build": "tsc && npm install",
+    "build": "npm install",
     "postinstall": "npm install"
   },
   "dependencies": {
