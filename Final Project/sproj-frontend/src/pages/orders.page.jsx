@@ -25,7 +25,7 @@ function OrdersPage() {
         throw new Error("Authentication token not available");
       }
 
-      const response = await fetch(`http://localhost:8000/api/orders/user_orders/`, {
+      const response = await fetch(`http://localhost:8000/api/orders/user/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -33,17 +33,14 @@ function OrdersPage() {
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error || `Failed to fetch orders. Status: ${response.status}`
-        );
+        throw new Error(`Failed to fetch orders. Status: ${response.status}`);
       }
       
       const data = await response.json();
       setOrders(data);
     } catch (error) {
       console.error('Error fetching orders:', error);
-      toast.error(error.message || "Failed to load orders");
+      toast.error("Failed to load orders");
     } finally {
       setIsLoading(false);
     }
@@ -57,6 +54,8 @@ function OrdersPage() {
   };
 
   const getStatusBadgeVariant = (status) => {
+    if (!status) return 'default';
+    
     switch (status.toLowerCase()) {
       case 'pending':
         return 'warning';
@@ -102,18 +101,15 @@ function OrdersPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
-  if (orders.length === 0) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8">My Orders</h1>
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">My Orders</h1>
+      
+      {isLoading ? (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      ) : orders.length === 0 ? (
         <div className="text-center py-12">
           <Package className="h-16 w-16 mx-auto mb-4 text-gray-400" />
           <h2 className="text-2xl font-semibold mb-2">No orders yet</h2>
@@ -124,107 +120,101 @@ function OrdersPage() {
             </Button>
           </Link>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">My Orders</h1>
-      
-      <div className="space-y-6">
-        {orders.map((order) => (
-          <Card key={order._id} className="p-6">
-            <div className="flex flex-col md:flex-row justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-4 mb-2">
-                  <h3 className="text-lg font-semibold">Order #{order._id.slice(-8)}</h3>
-                  <Badge variant={getStatusBadgeVariant(order.status)}>
-                    {order.status}
-                  </Badge>
+      ) : (
+        <div className="space-y-6">
+          {orders.map((order) => (
+            <Card key={order._id} className="p-6">
+              <div className="flex flex-col md:flex-row justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-4 mb-2">
+                    <h3 className="text-lg font-semibold">Order #{order._id.slice(-8)}</h3>
+                    <Badge variant={getStatusBadgeVariant(order.status)}>
+                      {order.status}
+                    </Badge>
+                  </div>
+                  <p className="text-gray-600">
+                    Placed on {formatDate(order.createdAt)}
+                  </p>
                 </div>
-                <p className="text-gray-600">
-                  Placed on {formatDate(order.createdAt)}
-                </p>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="font-semibold">Total Amount</p>
+                    <p className="text-lg">${order.totalAmount.toFixed(2)}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => toggleOrderExpansion(order._id)}
+                  >
+                    {expandedOrders[order._id] ? (
+                      <ChevronUp className="h-6 w-6" />
+                    ) : (
+                      <ChevronDown className="h-6 w-6" />
+                    )}
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="font-semibold">Total Amount</p>
-                  <p className="text-lg">${order.totalAmount.toFixed(2)}</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => toggleOrderExpansion(order._id)}
-                >
-                  {expandedOrders[order._id] ? (
-                    <ChevronUp className="h-6 w-6" />
-                  ) : (
-                    <ChevronDown className="h-6 w-6" />
-                  )}
-                </Button>
-              </div>
-            </div>
 
-            {expandedOrders[order._id] && (
-              <div className="mt-6 border-t pt-6">
-                <div className="space-y-4">
-                  {order.items.map((item) => (
-                    <div key={item._id} className="flex items-center gap-4">
-                      <div className="w-20 h-20 bg-gray-100 rounded-lg p-2">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <Link 
-                          to={`/shop/${item.productId}`}
-                          className="font-semibold hover:text-primary transition-colors flex items-center gap-2"
-                        >
-                          {item.name}
-                          <ExternalLink className="h-4 w-4" />
-                        </Link>
-                        <p className="text-gray-600">Quantity: {item.quantity}</p>
-                        <p className="text-gray-600">Price: ${item.price}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
+              {expandedOrders[order._id] && (
                 <div className="mt-6 border-t pt-6">
-                  <h4 className="font-semibold mb-4">Shipping Details</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-600">Address:</p>
-                      <p>{order.shippingAddress.street}</p>
-                      <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
-                      <p>{order.shippingAddress.country}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Contact:</p>
-                      <p>{order.shippingAddress.name}</p>
-                      <p>{order.shippingAddress.email}</p>
-                      <p>{order.shippingAddress.phone}</p>
+                  <div className="space-y-4">
+                    {order.items.map((item) => (
+                      <div key={item._id} className="flex items-center gap-4">
+                        <div className="w-20 h-20 bg-gray-100 rounded-lg p-2">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <Link 
+                            to={`/shop/${item.productId}`}
+                            className="font-semibold hover:text-primary transition-colors flex items-center gap-2"
+                          >
+                            {item.name}
+                            <ExternalLink className="h-4 w-4" />
+                          </Link>
+                          <p className="text-gray-600">Quantity: {item.quantity}</p>
+                          <p className="text-gray-600">Price: ${item.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 border-t pt-6">
+                    <h4 className="font-semibold mb-4">Shipping Details</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-gray-600">Address:</p>
+                        <p>{order.shippingAddress.street}</p>
+                        <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
+                        <p>{order.shippingAddress.country}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Contact:</p>
+                        <p>{order.shippingAddress.name}</p>
+                        <p>{order.shippingAddress.email}</p>
+                        <p>{order.shippingAddress.phone}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="mt-6 border-t pt-6">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handlePayClick(order)}
-              >
-                Pay
-              </Button>
-            </div>
-          </Card>
-        ))}
-      </div>
+              <div className="mt-6 border-t pt-6">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handlePayClick(order)}
+                >
+                  Pay
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

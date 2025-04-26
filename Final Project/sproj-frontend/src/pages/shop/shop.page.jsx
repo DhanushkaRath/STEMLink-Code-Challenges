@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { useGetProductsQuery } from "@/lib/api";
+import { useGetProductsQuery, useGetCategoriesQuery } from "@/lib/api";
 import ProductCard from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { Search } from "lucide-react";
 function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
-  const { data: products, isLoading, error } = useGetProductsQuery();
+  const { data: products, isLoading: isProductsLoading, error: productsError } = useGetProductsQuery();
+  const { data: categories, isLoading: isCategoriesLoading, error: categoriesError } = useGetCategoriesQuery();
 
   const filteredProducts = searchQuery
     ? products?.filter(product =>
@@ -28,7 +29,7 @@ function ShopPage() {
     }
   };
 
-  if (isLoading) {
+  if (isProductsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
@@ -36,10 +37,10 @@ function ShopPage() {
     );
   }
 
-  if (error) {
+  if (productsError) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <p className="text-red-500">Error loading products: {error.message}</p>
+        <p className="text-red-500">Error loading products: {productsError.message}</p>
       </div>
     );
   }

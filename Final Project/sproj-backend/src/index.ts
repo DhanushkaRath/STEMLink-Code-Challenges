@@ -13,6 +13,34 @@ import http from 'http';
 import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node';
 
 const app = express();
+app.use(express.json());
+app.use(clerkMiddleware());
+app.use(cors({
+  origin: ["http://localhost:5173", "https://fed-storefront-frontend-dhanushka.netlify.app"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}));
+
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'https://fed-storefront-frontend-dhanushka.netlify.app',
+      'http://localhost:5173'
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
+app.options("*", cors()); // Respond to preflight requests globally
+app.use((req, res, next) => {
+  console.log("Request received:", req.method, req.path);
+  next();
+});
 
 // Create HTTP server
 const server = http.createServer(app);
@@ -34,21 +62,8 @@ wss.on('connection', (ws) => {
 });
 
 // Middleware
-app.use(express.json());
-app.use(cors({
-  origin: [
-    'https://fed-storefront-frontend-dhanushka.netlify.app',
-    'http://localhost:5173',
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  credentials: true,
-  maxAge: 86400
-}));
 
-// Initialize Clerk
-app.use(clerkMiddleware());
+
 
 // Routes
 app.use("/api/products", productRouter);
@@ -64,7 +79,7 @@ connectDB();
 
 // Start server
 const PORT = process.env.PORT || 8000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`WebSocket server running on ws://localhost:${PORT}/ws/orders`);
-});
+server.listen(PORT, () => 
+  console.log(`Server running on port ${PORT}`)
+);
+  

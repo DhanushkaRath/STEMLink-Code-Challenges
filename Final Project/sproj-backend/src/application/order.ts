@@ -155,3 +155,53 @@ export const getOrder = async (
     next(error);
   }
 };
+
+export const getOrdersByUserId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      throw new ValidationError("User ID is required");
+    }
+
+    const orders = await Order.find({ userId })
+      .populate('addressId')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Define valid status values
+    const validOrderStatuses = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+    const validPaymentStatuses = ['PENDING', 'PAID'];
+
+    // Ensure all required fields are present with default values and proper formatting
+    const sanitizedOrders = orders.map(order => {
+      // Ensure orderStatus and paymentStatus are valid strings
+      const orderStatus = typeof order.orderStatus === 'string' 
+        ? order.orderStatus.toUpperCase() 
+        : 'PENDING';
+      const paymentStatus = typeof order.paymentStatus === 'string' 
+        ? order.paymentStatus.toUpperCase() 
+        : 'PENDING';
+
+      return {
+        ...order,
+        totalAmount: order.totalAmount || 0,
+        orderStatus: validOrderStatuses.includes(orderStatus) ? orderStatus : 'PENDING',
+        paymentStatus: validPaymentStatuses.includes(paymentStatus) ? paymentStatus : 'PENDING',
+        items: order.items.map(item => ({
+          ...item,
+          price: item.price || 0,
+          quantity: item.quantity || 0,
+          name: item.name || 'Unknown Product'
+        }))
+      };
+    });
+
+    res.status(200).json(sanitizedOrders);
+  } catch (error) {
+    next(error);
+  }
+};
